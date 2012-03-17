@@ -2,5 +2,6 @@
 <resources>
     <string name="app_name">SonicLiveWallpaper</string>
     <string name="wallpaper_sonic">Sonic Wallpaper</string>
+    <string name="wallpaper_description">Live wallpaper where Sonic, Tails, and Knuckles run across</string>
 
 </resources>

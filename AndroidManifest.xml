@@ -21,7 +21,7 @@
 
             <meta-data
                 android:name="android.service.wallpaper"
-                android:resource="@layout/main" />
+                android:resource="@xml/wallpaper" />
         </service>
     </application>
 </manifest>
