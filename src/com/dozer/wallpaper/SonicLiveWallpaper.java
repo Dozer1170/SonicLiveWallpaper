@@ -1,22 +1,15 @@
 package com.dozer.wallpaper;
 
 import android.app.WallpaperManager;
-import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Point;
 import android.graphics.Rect;
-import android.graphics.RectF;
 import android.os.Handler;
 import android.service.wallpaper.WallpaperService;
-import android.util.Log;
-import android.view.Display;
 import android.view.SurfaceHolder;
-import android.view.WindowManager;
 
 public class SonicLiveWallpaper extends WallpaperService {
 
@@ -45,9 +38,6 @@ public class SonicLiveWallpaper extends WallpaperService {
 		private int x;
 		private Bitmap bg;
 		private Bitmap bg2;
-		private Rect src;
-		private Rect dest;
-		private Paint paint;
 		private int screenHeight;
 		private int screenWidth;
 		private int bitmapWidth;
@@ -169,9 +159,6 @@ public class SonicLiveWallpaper extends WallpaperService {
 			bitmapHeight = bg.getHeight();
 			screenHeight = manager.getDesiredMinimumHeight();
 			screenWidth = manager.getDesiredMinimumWidth();
-			dest = new Rect(0, 0, screenWidth, screenHeight);
-			src = new Rect(0, 0, screenWidth + x, screenHeight);
-			paint = new Paint();
 			sonic = new AnimatedSprite();
 			sonic.init(BitmapFactory.decodeResource(res,
 					R.drawable.sonicrunspritesheet), 72, 128, 60, 4);
