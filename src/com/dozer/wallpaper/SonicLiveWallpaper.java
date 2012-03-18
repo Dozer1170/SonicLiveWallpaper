@@ -1,12 +1,17 @@
 package com.dozer.wallpaper;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 import android.app.WallpaperManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.os.Handler;
 import android.service.wallpaper.WallpaperService;
+import android.util.Log;
 import android.view.SurfaceHolder;
 
 public class SonicLiveWallpaper extends WallpaperService {
@@ -33,14 +38,11 @@ public class SonicLiveWallpaper extends WallpaperService {
 
 		private float mOffset;
 		private long mTimer;
-		private int x;
-		private Bitmap bg;
-		private Bitmap bg2;
-		private int screenHeight;
-		private int screenWidth;
-		private int bitmapWidth;
-		private int bitmapHeight;
-		private int scaleY;
+		private Bitmap bg, bg2, sonicBitmap, tailsBitmap, knucklesBitmap;
+		private float screenHeight, screenWidth;
+		private float bitmapWidth, bitmapHeight;
+		private float canvasWidth, canvasHeight;
+		private float scaleX,scaleY;
 		private int screenLoc;
 		private AnimatedSprite sonic;
 		private AnimatedSprite knuckles;
@@ -141,6 +143,7 @@ public class SonicLiveWallpaper extends WallpaperService {
 				606, 606, 605, 605, 605, 605, 605 };
 		WallpaperManager manager = WallpaperManager
 				.getInstance(getApplicationContext());
+		Resources res = getResources();
 
 		private final Runnable drawWallpaper = new Runnable() {
 			public void run() {
@@ -150,19 +153,24 @@ public class SonicLiveWallpaper extends WallpaperService {
 		private boolean mVisible;
 
 		SonicEngine() {
-			Resources res = getResources();
-			bg = BitmapFactory.decodeResource(res, R.drawable.sonicclippedbg);
-			bg2 = BitmapFactory.decodeResource(res, R.drawable.bggreenhill);
-			bitmapWidth = bg.getWidth();
-			bitmapHeight = bg.getHeight();
+			android.os.Debug.waitForDebugger();
+			Log.i(TAG, "Initializing Sonic wallpaper!");
 			screenHeight = manager.getDesiredMinimumHeight();
 			screenWidth = manager.getDesiredMinimumWidth();
+			bg = getBitmap(R.drawable.sonicclippedbg);
+			bg2 = getBitmap(R.drawable.bggreenhill);
+			bitmapHeight = bg.getHeight();
+			bitmapWidth = bg.getWidth();
+			scaleY = screenHeight / bitmapHeight;
+			scaleX = screenWidth / bitmapWidth;
 			sonic = new AnimatedSprite();
-			sonic.init(BitmapFactory.decodeResource(res,
-					R.drawable.sonicrunspritesheet), 72, 128, 60, 4);
+			sonicBitmap = getBitmap(R.drawable.sonicrunspritesheet);
+			sonic.init(sonicBitmap, sonicBitmap.getHeight(),
+					sonicBitmap.getWidth() / 4, 60, 4);
 			tails = new AnimatedSprite();
-			tails.init(BitmapFactory.decodeResource(res,
-					R.drawable.tailspritesheet), 60, 72, 10, 4);
+			tailsBitmap = getBitmap(R.drawable.tailspritesheet);
+			tails.init(tailsBitmap, tailsBitmap.getHeight(),
+					tailsBitmap.getWidth() / 4, 30, 4);
 			sonic.mYPos = 610;
 			sonicWorldX = 0;
 			sonicWorldY = 705;
@@ -170,12 +178,16 @@ public class SonicLiveWallpaper extends WallpaperService {
 			tailsWorldY = 705;
 			tails.mYPos = 610;
 			knuckles = new AnimatedSprite();
-			knuckles.init(
-					BitmapFactory.decodeResource(res, R.drawable.knuckles), 48,
-					148, 60, 1);
+			knucklesBitmap = getBitmap(R.drawable.knuckles);
+			knuckles.init(knucklesBitmap, knucklesBitmap.getHeight(),
+					knucklesBitmap.getWidth(), 60, 1);
 			knuckles.mYPos = 200;
 			knucklesWorldX = 512;
 			knucklesWorldY = 200;
+		}
+		
+		public Bitmap getBitmap(int id) {
+			return BitmapFactory.decodeResource(res, id);
 		}
 
 		@Override
@@ -204,9 +216,10 @@ public class SonicLiveWallpaper extends WallpaperService {
 		public void onSurfaceChanged(SurfaceHolder holder, int format,
 				int width, int height) {
 			super.onSurfaceChanged(holder, format, width, height);
-			this.screenWidth = width;
-			this.screenHeight = height;
-			scaleY = screenHeight / bg.getHeight();
+			this.canvasWidth = width;
+			this.canvasHeight = height;
+			scaleY = screenHeight / canvasHeight;
+			scaleX = screenWidth / canvasWidth;
 			drawFrame();
 		}
 
@@ -255,13 +268,13 @@ public class SonicLiveWallpaper extends WallpaperService {
 					if (sonicWorldX > bitmapWidth) {
 						sonicWorldX = -128;
 						sonicWorldY = bgPath[0] - sonic.mSpriteHeight;
-						sonic.mYPos = scaleY * sonicWorldY;
+						sonic.mYPos = sonicWorldY;
 					}
 
 					if (tailsWorldX > bitmapWidth) {
 						tailsWorldX = -128;
 						tailsWorldY = bgPath[0] - tails.mSpriteHeight;
-						tails.mYPos = scaleY * tailsWorldY;
+						tails.mYPos = tailsWorldY;
 					}
 
 					if (knucklesWorldX > bitmapWidth) {
@@ -276,13 +289,15 @@ public class SonicLiveWallpaper extends WallpaperService {
 					sonicPathIndex = sonicWorldX + 64;
 					tailsPathIndex = tailsWorldX + 36;
 					if (sonicPathIndex > 0 && sonicPathIndex < 1024) {
-						sonicWorldY = bgPath[sonicPathIndex] - sonic.mSpriteHeight;
-						sonic.mYPos = scaleY * sonicWorldY;
+						sonicWorldY = bgPath[sonicPathIndex]
+								- sonic.mSpriteHeight;
+						sonic.mYPos = sonicWorldY;
 					}
 
 					if (tailsPathIndex > 0 && tailsPathIndex < 1024) {
-						tailsWorldY = bgPath[tailsPathIndex] - tails.mSpriteHeight;
-						tails.mYPos = scaleY * tailsWorldY;
+						tailsWorldY = bgPath[tailsPathIndex]
+								- tails.mSpriteHeight;
+						tails.mYPos = tailsWorldY;
 					}
 
 					knuckles.mYPos = knucklesWorldY;
@@ -296,6 +311,7 @@ public class SonicLiveWallpaper extends WallpaperService {
 					if (knuckles.mXPos + 128 > 0
 							&& knuckles.mXPos < screenWidth)
 						knuckles.draw(c);
+					//c.scale(1,scaleY);
 				}
 			} finally {
 				if (c != null)
