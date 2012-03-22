@@ -1,14 +1,10 @@
 package com.dozer.wallpaper;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 import android.app.WallpaperManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Matrix;
 import android.os.Handler;
 import android.service.wallpaper.WallpaperService;
 import android.util.Log;
@@ -22,6 +18,7 @@ public class SonicLiveWallpaper extends WallpaperService {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		
 	}
 
 	@Override
@@ -216,10 +213,10 @@ public class SonicLiveWallpaper extends WallpaperService {
 		public void onSurfaceChanged(SurfaceHolder holder, int format,
 				int width, int height) {
 			super.onSurfaceChanged(holder, format, width, height);
-			this.canvasWidth = width;
-			this.canvasHeight = height;
-			scaleY = screenHeight / canvasHeight;
-			scaleX = screenWidth / canvasWidth;
+			Log.i(TAG,"Canvas Width, Height: " + width + ", " + height);
+			Log.i(TAG,"Screen Width, Height: " + screenWidth + ", " + screenHeight);
+			scaleY = height / bitmapHeight;
+			scaleX = (bitmapWidth / (width * 4));
 			drawFrame();
 		}
 
@@ -255,7 +252,8 @@ public class SonicLiveWallpaper extends WallpaperService {
 			try {
 				c = holder.lockCanvas();
 				if (c != null) {
-					screenLoc = (int) ((screenWidth - bitmapWidth) * mOffset);
+					c.scale(1,scaleY);
+					screenLoc = (int) ((c.getWidth() - bitmapWidth) * mOffset);
 					c.drawBitmap(bg2, (screenWidth - bitmapWidth)
 							* (mOffset / 2), 0, null);
 					c.drawBitmap(bg, screenLoc, 0, null);
@@ -311,7 +309,6 @@ public class SonicLiveWallpaper extends WallpaperService {
 					if (knuckles.mXPos + 128 > 0
 							&& knuckles.mXPos < screenWidth)
 						knuckles.draw(c);
-					//c.scale(1,scaleY);
 				}
 			} finally {
 				if (c != null)
