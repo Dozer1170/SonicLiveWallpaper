@@ -150,7 +150,7 @@ public class SonicLiveWallpaper extends WallpaperService {
 		private boolean mVisible;
 
 		SonicEngine() {
-			android.os.Debug.waitForDebugger();
+			//android.os.Debug.waitForDebugger();
 			Log.i(TAG, "Initializing Sonic wallpaper!");
 			screenHeight = manager.getDesiredMinimumHeight();
 			screenWidth = manager.getDesiredMinimumWidth();
@@ -190,7 +190,6 @@ public class SonicLiveWallpaper extends WallpaperService {
 		@Override
 		public void onCreate(SurfaceHolder surfaceHolder) {
 			super.onCreate(surfaceHolder);
-			android.os.Debug.waitForDebugger();
 		}
 
 		@Override
